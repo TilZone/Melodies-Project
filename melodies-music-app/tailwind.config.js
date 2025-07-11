@@ -1,17 +1,15 @@
-import lineClamp from '@tailwindcss/line-clamp';
-import scrollbarHide from 'tailwind-scrollbar-hide';
+import tailwindScrollbarHide from 'tailwind-scrollbar-hide';
 
-// tailwind.config.js
-/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
     },
   },
-  plugins: [lineClamp, scrollbarHide],
+  plugins: [tailwindScrollbarHide],
+  darkMode: 'class',
 };

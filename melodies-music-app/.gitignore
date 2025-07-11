@@ -7,22 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Node modules
-node_modules/
-melodies-music-app/node_modules/
-melodies-api/node_modules/
-
-# Build output
-build/
-dist/
-melodies-music-app/dist/
-melodies-api/dist/
-
-# Env files
+node_modules
+dist
 .env
-melodies-music-app/.env
-melodies-api/.env
-
 dist-ssr
 *.local
 
@@ -35,4 +22,4 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw? 
+*.sw?
