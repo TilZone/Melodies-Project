@@ -1,0 +1,47 @@
+.TopBar {
+margin: 5%;
+    display: flex;
+    justify-content: row;
+    row-gap: 10px;
+    align-items: center;
+    /* padding: 16px 32px; */
+    background-color: #1e1e2f00;
+    color: white;
+
+  }
+  
+  .TopBar-Search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .TopBar-Search input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #2e2e3e;
+    color: white;
+    width: 250px;
+  }
+  
+  .TopBar-Search input::placeholder {
+    color: #aaa;
+  }
+  
+  .TopBar-Menu {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .TopBar-Menu a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .TopBar-Menu a:hover {
+    color: #00d1b2;
+  }
+  
