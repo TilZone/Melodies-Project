@@ -8,7 +8,7 @@ const ArtistCard = ({ name, image }) => (
       className="w-[84px] h-[84px] rounded-full object-cover mb-2"
       onError={(e) => {
         e.target.onerror = null; // prevent infinite loop
-        e.target.src = `https://via.placeholder.com/84x84/1DB954/FFFFFF?text=${name.charAt(0)}`;
+        e.target.src = `https://placehold.co/84x84/1DB954/FFFFFF?text=${name.charAt(0)}`;
       }}
     />
     <span className="text-white text-sm font-bold text-center truncate">{name}</span>

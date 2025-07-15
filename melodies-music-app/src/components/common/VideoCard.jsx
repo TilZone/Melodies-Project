@@ -1,5 +1,10 @@
-const VideoCard = ({ title, artist, views, image }) => (
-  <div className="flex flex-col min-w-[140px] cursor-pointer hover:scale-105 transition-transform duration-300">
+import PropTypes from 'prop-types';
+
+const VideoCard = ({ title, artist, views, image, onClick = () => {} }) => (
+  <div
+    className="flex flex-col min-w-[140px] cursor-pointer hover:scale-105 transition-transform duration-300"
+    onClick={onClick}
+  >
     <div className="relative w-[140px] h-[76px] rounded-md overflow-hidden">
       <img src={image} alt={title} className="w-full h-full object-cover" />
     </div>
@@ -12,5 +17,13 @@ const VideoCard = ({ title, artist, views, image }) => (
     </div>
   </div>
 );
+
+VideoCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  artist: PropTypes.string.isRequired,
+  views: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
+};
 
 export default VideoCard;

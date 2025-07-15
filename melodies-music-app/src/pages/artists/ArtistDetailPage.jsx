@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Typography, Spin, Card, Col, Row, Avatar, Button, Alert } from 'antd';
 import { UserOutlined, PlayCircleFilled } from '@ant-design/icons';
-import { fetchArtistById } from '../../services/api.js';
+import { fetchArtistById } from '../../services/artist.service.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';
 
 const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 
-const ArtistPage = () => {
+const ArtistDetailPage = () => {
   const { id: artistId } = useParams(); // Lấy artistId từ URL param /artist/:id
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -182,7 +182,9 @@ const ArtistPage = () => {
                   <Meta
                     title={<Text className="text-gray-900 dark:text-gray-100">{album.title}</Text>}
                     description={
-                      <Text className="text-gray-600 dark:text-gray-400">{album.releaseYear}</Text>
+                      <Text className="text-gray-600 dark:text-gray-400">
+                        {new Date(album.releaseDate).getFullYear()}
+                      </Text>
                     }
                   />
                 </Card>
@@ -195,4 +197,4 @@ const ArtistPage = () => {
   );
 };
 
-export default ArtistPage;
+export default ArtistDetailPage;

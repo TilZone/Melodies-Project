@@ -22,8 +22,9 @@ export const fetchSongById = async (id) => {
 
 export const fetchNewReleases = async () => {
   try {
-    const response = await axiosInstance.get('/songs?sort=-releaseDate&limit=10');
-    return processApiResponse(response);
+    const response = await axiosInstance.get('/songs/discover/new-releases');
+    const data = processApiResponse(response);
+    return data;
   } catch (error) {
     handleApiError(error, 'fetching new releases');
   }

@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
-import DiscoverPage from './pages/Discover';
+import DiscoverPage from './pages/discover';
 import ArtistListPage from './pages/artists'; // Correctly import the list page
 import ArtistDetailPage from './pages/artists/ArtistDetailPage';
 import AlbumDetailPage from './pages/albums/AlbumDetailPage';
-import MusicPage from './pages/Music'; // Import the main music page
+import MusicPage from './pages/music'; // Import the main music page
 
 // A simple placeholder for pages that are not yet built
 const ComingSoonPage = ({ pageName }) => (

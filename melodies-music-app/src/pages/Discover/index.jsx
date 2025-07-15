@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchNewReleases, fetchArtists } from '../../services/api';
+import { fetchNewReleases } from '../../services/song.service';
+import { fetchPopularArtists } from '../../services/artist.service';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { Spin, Alert } from 'antd';
 
@@ -9,7 +10,7 @@ import SongCard from '../../components/common/SongCard';
 import ArtistCard from '../../components/common/ArtistCard';
 import SectionHeader from '../../components/common/SectionHeader';
 import PlaylistCard from '../../components/common/PlaylistCard';
-import VideoCard from '../../components/common/VideoCard'; // Import VideoCard
+import VideoCard from '../../components/common/VideoCard';
 
 // --- Dữ liệu giả cho các mục chưa có API ---
 const musicGenres = [
@@ -119,9 +120,9 @@ const DiscoverPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const [releases, artists] = await Promise.all([fetchNewReleases(), fetchArtists()]);
-        setNewReleases(releases || []);
-        setPopularArtists(artists || []);
+        const [releases, artists] = await Promise.all([fetchNewReleases(), fetchPopularArtists()]);
+        setNewReleases(releases?.items || []);
+        setPopularArtists(artists?.items || []);
       } catch (err) {
         console.error('Failed to load discovery data:', err);
         setError('Could not load discovery data. Please try again later.');
@@ -135,6 +136,10 @@ const DiscoverPage = () => {
 
   const handleSongClick = (song) => {
     playSong(song, newReleases); // Cung cấp cả danh sách phát
+  };
+
+  const handleArtistClick = (artistId) => {
+    navigate(`/artists/${artistId}`);
   };
 
   const handleVideoClick = (video) => {
@@ -197,18 +202,18 @@ const DiscoverPage = () => {
         <SectionHeader
           title="New Release"
           highlight="Songs"
-          onViewAll={() => navigate('/new-releases')}
+          onViewAll={() => navigate('/songs/new-releases')}
         />
         <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-4">
           {newReleases.length > 0 ? (
             newReleases.map((song) => (
-              <SongCard
-                key={song.id}
-                title={song.title}
-                artist={song.artist?.name || 'Unknown Artist'}
-                image={song.coverArt}
-                onClick={() => handleSongClick(song)}
-              />
+              <div key={song._id} onClick={() => handleSongClick(song)}>
+                <SongCard
+                  title={song.title}
+                  artist={song.artist?.name || 'Unknown Artist'}
+                  image={song.coverArt}
+                />
+              </div>
             ))
           ) : (
             <p className="text-gray-400">No new releases found.</p>
@@ -222,12 +227,9 @@ const DiscoverPage = () => {
         <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
           {popularArtists.length > 0 ? (
             popularArtists.map((artist) => (
-              <ArtistCard
-                key={artist.id}
-                name={artist.name}
-                image={artist.imageUrl}
-                onClick={() => navigate(`/artists/${artist.id}`)}
-              />
+              <div key={artist._id} onClick={() => handleArtistClick(artist._id)}>
+                <ArtistCard name={artist.name} image={artist.imageUrl} />
+              </div>
             ))
           ) : (
             <p className="text-gray-400">No popular artists found.</p>

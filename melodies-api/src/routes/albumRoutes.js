@@ -1,15 +1,14 @@
-const express = require('express');
+import express from 'express';
+import albumController from '../controllers/albumController.js';
+
 const router = express.Router();
-const {
-  createAlbum,
-  getAllAlbums,
-  getAlbumById,
-  updateAlbum,
-  deleteAlbum,
-} = require('../controllers/albumController');
 
 // Define routes
-router.route('/').get(getAllAlbums).post(createAlbum);
-router.route('/:id').get(getAlbumById).put(updateAlbum).delete(deleteAlbum);
+router.route('/').get(albumController.getAllAlbums).post(albumController.createAlbum);
+router
+  .route('/:id')
+  .get(albumController.getAlbumById)
+  .put(albumController.updateAlbum)
+  .delete(albumController.deleteAlbum);
 
-module.exports = router;
+export default router;

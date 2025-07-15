@@ -1,7 +1,7 @@
-const Song = require('../models/song');
-const Artist = require('../models/artist');
-const Album = require('../models/album');
-const { successResponse, errorResponse } = require('../utils/response');
+import Song from '../models/song.js';
+import Artist from '../models/artist.js';
+import Album from '../models/album.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 
 // @desc    Create a new song
 // @route   POST /api/songs
@@ -141,10 +141,51 @@ const deleteSong = async (req, res) => {
   }
 };
 
-module.exports = {
+// @desc    Get top 10 trending songs by play count
+// @route   GET /api/songs/discover/trending
+// @access  Public
+const getTrendingSongs = async (req, res) => {
+  try {
+    const trendingSongs = await Song.find()
+      .sort({ playCount: -1 })
+      .limit(10)
+      .populate('artist', 'name imageUrl')
+      .populate('album', 'title');
+    return successResponse(res, 200, trendingSongs, 'Trending songs retrieved successfully');
+  } catch (error) {
+    return errorResponse(res, 500, `Server error while fetching trending songs: ${error.message}`);
+  }
+};
+
+// @desc    Get 10 newest song releases
+// @route   GET /api/songs/discover/new-releases
+// @access  Public
+const getNewReleases = async (req, res) => {
+  try {
+    const newReleases = await Song.find()
+      .sort({ releaseDate: -1 })
+      .limit(10)
+      .populate('artist', 'name imageUrl')
+      .populate('album', 'title coverArt');
+
+    const data = {
+      items: newReleases,
+      totalPages: 1, // Assuming no pagination for fixed limit 10
+      currentPage: 1,
+      totalItems: newReleases.length,
+    };
+    return successResponse(res, 200, data, 'New releases retrieved successfully');
+  } catch (error) {
+    return errorResponse(res, 500, `Server error while fetching new releases: ${error.message}`);
+  }
+};
+
+export default {
   createSong,
   getAllSongs,
   getSongById,
   updateSong,
   deleteSong,
+  getTrendingSongs,
+  getNewReleases,
 };

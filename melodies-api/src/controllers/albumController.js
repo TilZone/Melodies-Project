@@ -1,6 +1,6 @@
-const Album = require('../models/album');
-const Artist = require('../models/artist');
-const { successResponse, errorResponse } = require('../utils/response');
+import Album from '../models/album.js';
+import Artist from '../models/artist.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 
 // @desc    Create a new album
 // @route   POST /api/albums
@@ -115,7 +115,7 @@ const deleteAlbum = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createAlbum,
   getAllAlbums,
   getAlbumById,

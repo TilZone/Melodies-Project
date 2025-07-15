@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { fetchSongById } from '../../services/api.js';
+import { fetchSongById } from '../../services/song.service.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';
 import { Spin, Alert, Button, Slider, Typography } from 'antd';
 import {

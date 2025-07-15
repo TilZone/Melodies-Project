@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const albumSchema = new mongoose.Schema(
   {
@@ -37,4 +37,5 @@ albumSchema.virtual('songs', {
 albumSchema.set('toJSON', { virtuals: true });
 albumSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('Album', albumSchema);
+const Album = mongoose.model('Album', albumSchema);
+export default Album;

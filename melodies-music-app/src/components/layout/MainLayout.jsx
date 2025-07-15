@@ -34,10 +34,10 @@ const MainLayout = () => {
     switch (path) {
       case '/discover':
         return (
-          <>
+          <React.Fragment>
             <span className="text-[#0E9EEF]">Disc</span>
             <span className="text-[#EE10B0]">over</span>
-          </>
+          </React.Fragment>
         );
       case '/artists':
         return 'Artists';

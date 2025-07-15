@@ -18,7 +18,7 @@ const PlayerBar = () => {
   return (
     <div
       className="fixed bottom-[90px] left-0 right-0 z-40 px-4"
-      onClick={() => navigate('/player')}
+      onClick={() => navigate(`/music/${currentSong.id}`)}
     >
       <div className="bg-[#252525]/80 backdrop-blur-md rounded-lg p-2 flex items-center justify-between cursor-pointer">
         {/* Song Info */}

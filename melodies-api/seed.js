@@ -1,10 +1,9 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const connectDB = require('./src/config/db');
-
-const Song = require('./src/models/song');
-const Artist = require('./src/models/artist');
-const Album = require('./src/models/album');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import connectDB from './src/config/db.js';
+import Song from './src/models/song.js';
+import Artist from './src/models/artist.js';
+import Album from './src/models/album.js';
 
 const seedData = async () => {
   try {
@@ -25,16 +24,19 @@ const seedData = async () => {
         name: 'Sơn Tùng M-TP',
         bio: 'Sơn Tùng M-TP is a Vietnamese singer, songwriter, and actor. He is known for his unique style and many V-pop hits.',
         imageUrl: 'https://i.scdn.co/image/ab6761610000e5eb8b4f3434c1b9bfa5d1a7a578',
+        monthlyListeners: 15000000, // Example: High monthly listeners
       },
       {
         name: 'Bích Phương',
         bio: 'Bích Phương is a Vietnamese singer known for her pop ballads and quirky music videos.',
         imageUrl: 'https://i.scdn.co/image/ab6761610000e5eb1f4f0e6a4c4e4e4e4e4e4e4e',
+        monthlyListeners: 8000000, // Example: Medium monthly listeners
       },
       {
         name: 'Đen Vâu',
         bio: 'Đen Vâu is a popular Vietnamese rapper and songwriter, famous for his poetic and story-telling lyrics.',
         imageUrl: 'https://i.scdn.co/image/ab6761610000e5ebc5a7c5a7c5a7c5a7c5a7c5a7',
+        monthlyListeners: 12000000, // Example: High monthly listeners
       },
     ]);
     const [sonTung, bichPhuong, denVau] = artists;
@@ -122,6 +124,22 @@ const seedData = async () => {
         releaseDate: new Date('2018-11-15'),
       },
     ]);
+
+    // New Song for New Releases
+    const newSong = await Song.create({
+      title: 'Bài Hát Mới Nhất',
+      artist: sonTung._id,
+      duration: 200,
+      coverArt: 'https://i.scdn.co/image/ab67616d0000b2738b4f3434c1b9bfa5d1a7a578',
+      audioUrl:
+        'https://archive.org/download/NoiNayCoAnh-SonTungMTP-4829513/NoiNayCoAnh-SonTungMTP-4829513.mp3', // Reusing for demo
+      lyrics: '[00:00.00]Đây là bài hát mới nhất',
+      genre: 'V-Pop',
+      playCount: 100000,
+      releaseDate: new Date(), // Today's date
+    });
+    songs.push(newSong);
+
     console.log('Songs seeded.');
 
     // --- Link data ---

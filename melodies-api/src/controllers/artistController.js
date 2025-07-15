@@ -1,5 +1,7 @@
-const Artist = require('../models/artist');
-const { successResponse, errorResponse } = require('../utils/response');
+import Artist from '../models/artist.js';
+import Song from '../models/song.js';
+import Album from '../models/album.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 
 // @desc    Create a new artist
 // @route   POST /api/artists
@@ -30,11 +32,13 @@ const createArtist = async (req, res) => {
 // @access  Public
 const getAllArtists = async (req, res) => {
   try {
-    const { page = 1, limit = 20, popular } = req.query;
+    let { page = 1, limit = 20, popular } = req.query;
+    let query = {};
+    let sort = { createdAt: -1 }; // Giá trị mặc định, có thể đổi thành { name: 1 } nếu muốn
 
-    let sort = { name: 1 };
     if (popular) {
       sort = { monthlyListeners: -1 };
+      limit = 10; // Limit to 10 for popular artists
     }
 
     const artists = await Artist.find()
@@ -43,7 +47,7 @@ const getAllArtists = async (req, res) => {
       .skip((page - 1) * limit)
       .exec();
 
-    const count = await Artist.countDocuments();
+    const count = await Artist.countDocuments(query);
 
     const data = {
       items: artists,
@@ -58,20 +62,35 @@ const getAllArtists = async (req, res) => {
   }
 };
 
-// @desc    Get a single artist by ID with their songs and albums
+// @desc    Get a single artist by ID with their top songs and albums
 // @route   GET /api/artists/:id
 // @access  Public
 const getArtistById = async (req, res) => {
   try {
-    const artist = await Artist.findById(req.params.id).populate('topSongs').populate('albums');
+    const artist = await Artist.findById(req.params.id);
 
     if (!artist) {
       return errorResponse(res, 404, 'Artist not found');
     }
 
-    return successResponse(res, 200, artist);
+    // Fetch top songs and albums in parallel for better performance
+    const [topSongs, albums] = await Promise.all([
+      Song.find({ artist: artist._id })
+        .sort({ playCount: -1 })
+        .limit(10)
+        .populate('album', 'title coverArt'),
+      Album.find({ artist: artist._id }).sort({ releaseDate: -1 }),
+    ]);
+
+    const artistData = {
+      ...artist.toObject(),
+      topSongs,
+      albums,
+    };
+
+    return successResponse(res, 200, artistData);
   } catch (error) {
-    return errorResponse(res, 500, `Server error while getting artist: ${error.message}`);
+    return errorResponse(res, 500, `Server error while getting artist details: ${error.message}`);
   }
 };
 
@@ -113,7 +132,7 @@ const deleteArtist = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createArtist,
   getAllArtists,
   getArtistById,

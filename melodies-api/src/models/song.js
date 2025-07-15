@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Song schema definition
 const songSchema = new mongoose.Schema(
@@ -31,4 +31,5 @@ const songSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('Song', songSchema);
+const Song = mongoose.model('Song', songSchema);
+export default Song;

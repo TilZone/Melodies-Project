@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spin, Alert, Typography } from 'antd';
-import { fetchArtists } from '../../services/api';
+import { fetchArtists } from '../../services/artist.service';
 import ArtistCard from '../../components/common/ArtistCard';
 
 const { Title } = Typography;
@@ -20,7 +20,6 @@ const ArtistListPage = () => {
         setError(null);
       } catch (err) {
         setError('Could not fetch artists. Please try again later.');
-        console.error('Error fetching artists:', err);
       } finally {
         setLoading(false);
       }

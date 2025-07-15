@@ -1,11 +1,16 @@
 // Entry point for Melodies API server
-const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db.js');
-const cors = require('cors');
+import express from 'express';
+import 'dotenv/config';
+import connectDB from './config/db.js';
+import cors from 'cors';
+
+// Route imports
+import songRoutes from './routes/songRoutes.js';
+import artistRoutes from './routes/artistRoutes.js';
+import albumRoutes from './routes/albumRoutes.js';
 
 // Load environment variables
-dotenv.config();
+// dotenv/config đã tự động load
 
 // Initialize Express app
 const app = express();
@@ -16,12 +21,20 @@ connectDB();
 
 // Middleware configuration
 app.use(express.json());
-app.use(cors());
 
-// Route imports
-const songRoutes = require('./routes/songRoutes.js');
-const artistRoutes = require('./routes/artistRoutes.js');
-const albumRoutes = require('./routes/albumRoutes.js');
+// CORS configuration
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:5173'];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 // API route registration
 app.use('/api/songs', songRoutes);

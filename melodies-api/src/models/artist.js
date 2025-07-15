@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const artistSchema = new mongoose.Schema(
   {
@@ -41,4 +41,5 @@ artistSchema.virtual('albums', {
 artistSchema.set('toJSON', { virtuals: true });
 artistSchema.set('toObject', { virtuals: true });
 
-module.exports = mongoose.model('Artist', artistSchema);
+const Artist = mongoose.model('Artist', artistSchema);
+export default Artist;
