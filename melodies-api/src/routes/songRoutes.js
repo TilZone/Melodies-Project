@@ -1,8 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const Song = require('../models/song.js');
+const {
+  createSong,
+  getAllSongs,
+  getSongById,
+  updateSong,
+  deleteSong,
+} = require('../controllers/songController');
+const Song = require('../models/song.js'); // Keep for custom routes
 
-// Helper function for consistent error responses
+// Helper functions (can be moved to a middleware file later)
 const handleError = (res, error, message = 'Internal server error') => {
   console.error(message, error);
   res.status(500).json({
@@ -11,7 +18,6 @@ const handleError = (res, error, message = 'Internal server error') => {
   });
 };
 
-// Helper function for consistent success responses
 const handleSuccess = (res, data, message = 'Success') => {
   res.status(200).json({
     success: true,
@@ -20,43 +26,11 @@ const handleSuccess = (res, data, message = 'Success') => {
   });
 };
 
-// Get all songs with artist and album details
-router.get('/', async (req, res) => {
-  try {
-    const songs = await Song.find().populate('artist').populate('album').sort({ createdAt: -1 });
+// --- CRUD Routes using Controller ---
+router.route('/').get(getAllSongs).post(createSong);
+router.route('/:id').get(getSongById).put(updateSong).delete(deleteSong);
 
-    handleSuccess(res, songs, 'Songs retrieved successfully');
-  } catch (error) {
-    handleError(res, error, 'Error fetching songs');
-  }
-});
-
-// Get a song by its ID, including artist and album
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: 'Song ID is required',
-      });
-    }
-
-    const song = await Song.findById(id).populate('artist').populate('album');
-
-    if (!song) {
-      return res.status(404).json({
-        success: false,
-        message: 'Song not found',
-      });
-    }
-
-    handleSuccess(res, song, 'Song retrieved successfully');
-  } catch (error) {
-    handleError(res, error, `Error fetching song ${req.params.id}`);
-  }
-});
+// --- Custom Discover Routes ---
 
 // Get top 10 trending songs by play count
 router.get('/discover/trending', async (req, res) => {
@@ -64,8 +38,8 @@ router.get('/discover/trending', async (req, res) => {
     const trendingSongs = await Song.find()
       .sort({ playCount: -1 })
       .limit(10)
-      .populate('artist')
-      .populate('album');
+      .populate('artist', 'name imageUrl')
+      .populate('album', 'title');
 
     handleSuccess(res, trendingSongs, 'Trending songs retrieved successfully');
   } catch (error) {
@@ -77,10 +51,10 @@ router.get('/discover/trending', async (req, res) => {
 router.get('/discover/new-releases', async (req, res) => {
   try {
     const newReleases = await Song.find()
-      .sort({ createdAt: -1 })
+      .sort({ releaseDate: -1 }) // Use releaseDate for more accuracy
       .limit(10)
-      .populate('artist')
-      .populate('album');
+      .populate('artist', 'name imageUrl')
+      .populate('album', 'title');
 
     handleSuccess(res, newReleases, 'New releases retrieved successfully');
   } catch (error) {

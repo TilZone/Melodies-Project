@@ -17,6 +17,7 @@
     "antd": "^5.x.x",
     "axios": "^1.x.x",
     "lucide-react": "^0.x.x",
+    "prop-types": "^15.8.1",
     "react": "^18.x.x",
     "react-dom": "^18.x.x",
     "react-router-dom": "^6.x.x",
@@ -37,6 +38,6 @@
     "postcss": "^8.x.x",
     "prettier": "^3.x.x",
     "tailwindcss": "^3.x.x",
-    "vite": "^5.x.x"
+    "vite": "^7.0.4"
   }
 }

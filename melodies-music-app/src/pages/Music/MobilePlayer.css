@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+.mobile-player-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #412c3a 0%, #0e1920 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  z-index: 1000;
+  font-family: 'Poppins', sans-serif;
+}
+
+.mobile-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 0.5rem;
+}
+
+.mobile-player-body {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cover-art-mobile {
+  width: 85%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-player-footer {
+  flex-shrink: 0;
+  padding: 0 0.5rem;
+}
+
+.song-info {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.progress-container {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.progress-container .ant-slider {
+  margin: 0.5rem 0;
+}
+
+.progress-container .ant-slider .ant-slider-track {
+  background-color: #1db954;
+}
+.progress-container .ant-slider .ant-slider-handle {
+  border-color: #1db954;
+}
+
+.time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.icon-btn:hover {
+  color: white;
+}
+
+.icon-btn.active {
+  color: #1db954;
+}
+
+.play-pause-btn {
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.play-pause-btn:hover {
+  transform: scale(1.05);
+}
+
+.repeat-one-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background-color: #1db954;
+  color: white;
+  border-radius: 50%;
+  font-size: 8px;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

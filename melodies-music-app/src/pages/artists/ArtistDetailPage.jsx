@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Typography, Spin, Card, Col, Row, Avatar, Button } from 'antd';
+import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Typography, Spin, Card, Col, Row, Avatar, Button, Alert } from 'antd';
 import { UserOutlined, PlayCircleFilled } from '@ant-design/icons';
 import { fetchArtistById } from '../../services/api.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';
@@ -9,23 +9,23 @@ const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 
 const ArtistPage = () => {
+  const { id: artistId } = useParams(); // Lấy artistId từ URL param /artist/:id
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
-  const artistId = searchParams.get('id'); // Get artist ID from query parameter
-
+  const [error, setError] = useState(null);
   const playSong = usePlayerStore((state) => state.playSong);
 
-  // Fetch artist data when artistId changes
+  // Gọi API lấy thông tin nghệ sĩ khi artistId thay đổi
   useEffect(() => {
     const loadArtist = async () => {
       if (artistId) {
         setLoading(true);
+        setError(null);
         try {
           const fetchedArtist = await fetchArtistById(artistId);
           setArtist(fetchedArtist || null);
-        } catch (error) {
-          console.error('Error loading artist info:', error);
+        } catch (err) {
+          setError(err.message || 'Lỗi khi tải thông tin nghệ sĩ.');
           setArtist(null);
         } finally {
           setLoading(false);
@@ -46,14 +46,25 @@ const ArtistPage = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center p-8">
+        <Alert message={error} type="error" showIcon className="mb-4" />
+        <Link to="/discover" className="text-green-500 hover:underline">
+          Quay lại Discover
+        </Link>
+      </div>
+    );
+  }
+
   if (!artist) {
     return (
       <div className="text-center p-8">
         <Title level={3} className="text-gray-800 dark:text-gray-200">
-          Artist not found.
+          Không tìm thấy nghệ sĩ.
         </Title>
         <Link to="/discover" className="text-green-500 hover:underline">
-          Back to Discover
+          Quay lại Discover
         </Link>
       </div>
     );
@@ -61,6 +72,7 @@ const ArtistPage = () => {
 
   return (
     <div className="p-4">
+      {/* Thông tin nghệ sĩ */}
       <div className="flex flex-col md:flex-row items-center md:items-start mb-8 bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <Avatar
           size={{ xs: 80, sm: 100, md: 120, lg: 160, xl: 200 }}
@@ -130,9 +142,12 @@ const ArtistPage = () => {
                       </Link>
                     }
                     description={
-                      <Text className="text-gray-600 dark:text-gray-400">{song.artist.name}</Text>
+                      <Text className="text-gray-600 dark:text-gray-400">{artist.name}</Text>
                     }
                   />
+                  <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2 block">
+                    Plays: {song.playCount?.toLocaleString() || 0}
+                  </Text>
                 </Card>
               </Col>
             ))}

@@ -1,9 +1,8 @@
-module.exports = {
+export default {
   semi: true,
-  trailingComma: 'es5',
   singleQuote: true,
+  trailingComma: 'all',
   printWidth: 100,
   tabWidth: 2,
-  useTabs: false,
-  arrowParens: 'always',
+  endOfLine: 'auto',
 };

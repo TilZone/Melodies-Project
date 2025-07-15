@@ -1,9 +1,9 @@
-const globals = require('globals');
-const pluginJs = require('@eslint/js');
-const prettierPlugin = require('eslint-plugin-prettier');
-const prettierConfig = require('./.prettierrc.js');
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettierConfig from './.prettierrc.js';
 
-module.exports = [
+export default [
   {
     languageOptions: {
       globals: globals.node,
@@ -18,7 +18,7 @@ module.exports = [
     },
     rules: {
       'prettier/prettier': ['error', prettierConfig],
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Bỏ qua biến bắt đầu bằng _
     },
   },
   {

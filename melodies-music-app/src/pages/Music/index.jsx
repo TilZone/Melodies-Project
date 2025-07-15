@@ -1,94 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Typography, Spin, Image, Button, Slider } from 'antd';
-import {
-  PlayCircleFilled,
-  PauseCircleFilled,
-  StepBackwardFilled,
-  StepForwardFilled,
-  SoundOutlined,
-  AudioMutedOutlined,
-} from '@ant-design/icons';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchSongById } from '../../services/api.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';
+import { Spin, Alert, Button, Slider, Typography } from 'antd';
+import {
+  PauseCircleFilled,
+  PlayCircleFilled,
+  StepForwardOutlined,
+  StepBackwardOutlined,
+  SoundOutlined,
+  MoreOutlined,
+} from '@ant-design/icons';
+import { Repeat, Shuffle } from 'lucide-react';
+import MobilePlayer from './MobilePlayer';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
+
+// Custom hook to check screen size
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(window.matchMedia(query).matches);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+};
+
+// Helper to parse LRC format lyrics: [mm:ss.xx] text
+const parseLyrics = (lyricsText) => {
+  if (!lyricsText) return [];
+  const lines = lyricsText.split('\n');
+  const result = [];
+  for (const line of lines) {
+    const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const milliseconds = parseInt(match[3], 10);
+      const time = minutes * 60 + seconds + milliseconds / 1000;
+      const text = match[4].trim();
+      result.push({ time, text });
+    }
+  }
+  return result;
+};
+
+const formatTime = (seconds) => {
+  const date = new Date(seconds * 1000);
+  const minutes = date.getUTCMinutes();
+  const secs = date.getUTCSeconds().toString().padStart(2, '0');
+  return `${minutes}:${secs}`;
+};
 
 const MusicPage = () => {
   const { id } = useParams();
-  const [song, setSong] = useState(null);
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const lyricsContainerRef = useRef(null);
+  const activeLyricRef = useRef(null);
 
-  // Player state and actions from global store
   const {
     currentSong,
     isPlaying,
-    volume,
-    duration,
     currentTime,
+    duration,
+    volume,
+    repeatMode,
+    isShuffled,
     playSong,
-    pauseSong,
     togglePlayPause,
-    setVolume,
-    setProgress,
+    playNext,
+    playPrevious,
     setCurrentTime,
+    setVolume,
+    toggleShuffle,
+    setRepeatMode,
   } = usePlayerStore();
 
-  // Fetch song data and update player state when song ID changes
+  const lyrics = parseLyrics(currentSong?.lyrics);
+
   useEffect(() => {
     const loadSong = async () => {
-      if (id) {
+      if (id && id !== currentSong?.id) {
         setLoading(true);
+        setError(null);
         try {
           const fetchedSong = await fetchSongById(id);
-          setSong(fetchedSong || null);
-          if (fetchedSong && (!currentSong || currentSong.id !== fetchedSong.id)) {
-            playSong(fetchedSong);
+          if (fetchedSong) {
+            playSong(fetchedSong, [fetchedSong]); // Play song and set it as the queue
+          } else {
+            setError('Song not found.');
           }
-          // Parse duration from "MM:SS" format to seconds
-          if (fetchedSong?.duration) {
-            const [minutes, seconds] = fetchedSong.duration.split(':').map(Number);
-            usePlayerStore.setState({ duration: minutes * 60 + seconds });
-          }
-        } catch (error) {
-          console.error('Error loading song:', error);
-          setSong(null);
+        } catch (err) {
+          setError('Failed to load the song.');
         } finally {
           setLoading(false);
         }
       } else {
         setLoading(false);
-        setSong(null);
       }
     };
+
     loadSong();
-  }, [id, currentSong, playSong]);
+  }, [id, playSong, currentSong?.id]);
 
-  // Simulate audio playback progress
+  // Find the current active lyric line
+  const activeLyricIndex = lyrics.findIndex((line, index) => {
+    const nextLine = lyrics[index + 1];
+    return currentTime >= line.time && (nextLine ? currentTime < nextLine.time : true);
+  });
+
+  // Scroll active lyric into view
   useEffect(() => {
-    let interval;
-    if (isPlaying && currentSong && currentTime < duration) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => prev + 1);
-        setProgress(
-          (usePlayerStore.getState().currentTime / usePlayerStore.getState().duration) * 100
-        );
-      }, 1000);
-    } else if (currentTime >= duration && isPlaying) {
-      // Reset player when song ends
-      pauseSong();
-      setCurrentTime(0);
-      setProgress(0);
+    if (activeLyricRef.current && lyricsContainerRef.current) {
+      lyricsContainerRef.current.scrollTo({
+        top: activeLyricRef.current.offsetTop - lyricsContainerRef.current.clientHeight / 2.5,
+        behavior: 'smooth',
+      });
     }
-    return () => clearInterval(interval);
-  }, [isPlaying, currentSong, currentTime, duration, setCurrentTime, setProgress, pauseSong]);
-
-  // Format seconds to MM:SS
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
+  }, [activeLyricIndex]);
 
   if (loading) {
     return (
@@ -98,128 +134,135 @@ const MusicPage = () => {
     );
   }
 
-  if (!song) {
+  if (error) {
     return (
       <div className="text-center p-8">
-        <Title level={3} className="text-gray-800 dark:text-gray-200">
-          Song not found.
-        </Title>
-        <Link to="/discover" className="text-green-500 hover:underline">
+        <Alert message={error} type="error" showIcon />
+        <Button onClick={() => navigate('/discover')} className="mt-4">
           Back to Discover
-        </Link>
+        </Button>
       </div>
     );
   }
 
+  if (!currentSong) {
+    return (
+      <div className="text-center p-8">
+        <p>No song is currently selected.</p>
+        <Link to="/discover">Find a song to play</Link>
+      </div>
+    );
+  }
+
+  // Render Mobile UI if on a small screen
+  if (isMobile) {
+    return <MobilePlayer onClose={() => navigate(-1)} />;
+  }
+
+  // Render Desktop UI
   return (
-    <div className="p-4 flex flex-col items-center">
-      <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-4xl flex flex-col md:flex-row items-center md:items-start">
-        <div className="flex-shrink-0 mb-6 md:mb-0 md:mr-8">
-          <Image
-            width={250}
-            height={250}
-            src={song.coverArt}
-            alt={song.title}
-            className="rounded-lg shadow-lg border border-gray-300 dark:border-gray-600"
-            preview={false}
-            onError={(e) => {
-              e.currentTarget.src = 'https://placehold.co/250x250/535353/FFFFFF?text=No+Image';
-            }}
-          />
+    <div className="flex flex-row h-[calc(100vh-var(--header-height)-var(--player-height))] text-white bg-gradient-to-br from-[#1c1c1c] to-[#121212]">
+      {/* Left Side: Album Art & Controls */}
+      <div className="w-1/2 flex flex-col items-center justify-center p-8 space-y-6">
+        <img
+          src={currentSong.coverArt}
+          alt={currentSong.title}
+          className="w-full max-w-md aspect-square rounded-lg shadow-2xl object-cover"
+        />
+        <div className="w-full max-w-md text-center">
+          <Title level={2} className="text-white">
+            {currentSong.title}
+          </Title>
+          <Text className="text-gray-400 text-lg">{currentSong.artist?.name}</Text>
         </div>
-        <div className="text-center md:text-left flex-grow">
-          <Title level={2} className="text-gray-900 dark:text-gray-100 mb-2">
-            {song.title}
-          </Title>
-          <Title level={4} className="text-gray-700 dark:text-gray-300 mb-4">
-            <Link to={`/artists?id=${song.artist.id}`} className="text-green-500 hover:underline">
-              {song.artist.name}
-            </Link>
-          </Title>
-
-          {/* Playback controls */}
-          <div className="flex items-center justify-center md:justify-start space-x-4 mb-4">
-            <Button
-              type="text"
-              icon={<StepBackwardFilled className="text-gray-700 dark:text-gray-300 text-3xl" />}
-              className="p-0 h-auto"
-            />
-            <Button
-              type="text"
-              icon={
-                isPlaying ? (
-                  <PauseCircleFilled className="text-green-500 text-5xl" />
-                ) : (
-                  <PlayCircleFilled className="text-green-500 text-5xl" />
-                )
-              }
-              onClick={togglePlayPause}
-              className="p-0 h-auto"
-            />
-            <Button
-              type="text"
-              icon={<StepForwardFilled className="text-gray-700 dark:text-gray-300 text-3xl" />}
-              className="p-0 h-auto"
-            />
+        <div className="w-full max-w-md space-y-3">
+          <Slider
+            min={0}
+            max={duration}
+            value={currentTime}
+            onChange={setCurrentTime}
+            tooltip={{ formatter: formatTime }}
+            step={0.1}
+          />
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
-
-          {/* Progress bar */}
-          <div className="flex items-center space-x-2 w-full mb-4">
-            <Text className="text-gray-600 dark:text-gray-400 text-sm">
-              {formatTime(currentTime)}
-            </Text>
-            <Slider
-              min={0}
-              max={duration}
-              value={currentTime}
-              onChange={(value) => {
-                setCurrentTime(value);
-                setProgress((value / duration) * 100);
-              }}
-              step={1}
-              className="flex-grow"
-              tooltip={{ formatter: (value) => formatTime(value || 0) }}
-            />
-            <Text className="text-gray-600 dark:text-gray-400 text-sm">{formatTime(duration)}</Text>
-          </div>
-
-          {/* Volume controls */}
-          <div className="flex items-center space-x-2 w-full justify-center md:justify-start">
-            <Button
-              type="text"
-              icon={
-                volume === 0 ? (
-                  <AudioMutedOutlined className="text-gray-700 dark:text-gray-300 text-xl" />
-                ) : (
-                  <SoundOutlined className="text-gray-700 dark:text-gray-300 text-xl" />
-                )
-              }
-              onClick={() => setVolume(volume === 0 ? 0.7 : 0)}
-              className="p-0 h-auto"
-            />
-            <Slider
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={setVolume}
-              className="w-32"
-              tooltip={{
-                formatter: (value) => `${Math.round((value || 0) * 100)}%`,
-              }}
-            />
-          </div>
+        </div>
+        <div className="flex items-center justify-center space-x-8 w-full max-w-md">
+          <button
+            onClick={toggleShuffle}
+            className={`text-gray-400 hover:text-white transition-colors ${isShuffled ? 'text-green-500' : ''}`}
+          >
+            <Shuffle size={20} />
+          </button>
+          <button
+            onClick={playPrevious}
+            className="text-gray-300 hover:text-white transition-colors"
+          >
+            <StepBackwardOutlined style={{ fontSize: '24px' }} />
+          </button>
+          <button onClick={togglePlayPause} className="text-white">
+            {isPlaying ? (
+              <PauseCircleFilled style={{ fontSize: '64px' }} />
+            ) : (
+              <PlayCircleFilled style={{ fontSize: '64px' }} />
+            )}
+          </button>
+          <button onClick={playNext} className="text-gray-300 hover:text-white transition-colors">
+            <StepForwardOutlined style={{ fontSize: '24px' }} />
+          </button>
+          <button
+            onClick={() => setRepeatMode()}
+            className={`text-gray-400 hover:text-white transition-colors relative ${repeatMode !== 'none' ? 'text-green-500' : ''}`}
+          >
+            <Repeat size={20} />
+            {repeatMode === 'one' && (
+              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                1
+              </span>
+            )}
+          </button>
+        </div>
+        <div className="flex items-center space-x-2 w-full max-w-md">
+          <SoundOutlined />
+          <Slider
+            className="w-24"
+            min={0}
+            max={1}
+            step={0.01}
+            value={volume}
+            onChange={setVolume}
+          />
         </div>
       </div>
 
-      {/* Song lyrics section */}
-      <div className="mt-8 bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-4xl">
-        <Title level={3} className="text-gray-900 dark:text-gray-100 mb-4">
-          Lyrics
-        </Title>
-        <Paragraph className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-          {song.lyrics || 'No lyrics available for this song.'}
-        </Paragraph>
+      {/* Right Side: Lyrics */}
+      <div className="w-1/2 flex flex-col p-8">
+        <div className="flex justify-between items-center mb-4">
+          <Title level={3} className="text-white">
+            Lyrics
+          </Title>
+          <Button icon={<MoreOutlined />} type="text" className="text-gray-400 hover:text-white" />
+        </div>
+        <div
+          ref={lyricsContainerRef}
+          className="lyrics-container flex-grow overflow-y-auto pr-4 space-y-4"
+        >
+          {lyrics.length > 0 ? (
+            lyrics.map((line, index) => (
+              <p
+                key={index}
+                ref={index === activeLyricIndex ? activeLyricRef : null}
+                className={`transition-all duration-300 text-2xl font-medium leading-relaxed ${index === activeLyricIndex ? 'text-white scale-105' : 'text-gray-500'}`}
+              >
+                {line.text}
+              </p>
+            ))
+          ) : (
+            <p className="text-gray-500 text-2xl">No lyrics available for this song.</p>
+          )}
+        </div>
       </div>
     </div>
   );
