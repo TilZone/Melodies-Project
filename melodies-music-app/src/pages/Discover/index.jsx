@@ -159,7 +159,16 @@ const DiscoverPage = () => {
   if (error) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Alert message="Error" description={error} type="error" showIcon />
+        return (
+      <div className="p-4">
+        <Alert
+          message="Could Not Load Discovery Data"
+          description={error}
+          type="error"
+          showIcon
+        />
+      </div>
+    );
       </div>
     );
   }

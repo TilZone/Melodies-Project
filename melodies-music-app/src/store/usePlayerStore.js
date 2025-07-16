@@ -31,7 +31,15 @@ export const usePlayerStore = create(
 
       // ACTIONS
       playSong: (song, songQueue = []) => {
-        const { isShuffled } = get();
+        const { currentSong, isPlaying, isShuffled } = get();
+
+        // If the clicked song is the current song, just toggle play/pause
+        if (currentSong && currentSong.id === song.id) {
+          set({ isPlaying: !isPlaying });
+          return;
+        }
+
+        // If it's a new song, proceed with setting up the queue and playing
         const newQueue = songQueue.length > 0 ? songQueue : [song];
         const original = [...newQueue];
         const currentQueue = isShuffled ? shuffle([...original]) : original;

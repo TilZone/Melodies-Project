@@ -90,21 +90,34 @@ const MobilePlayer = ({ onClose }) => {
         </div>
 
         <div className="controls-container">
-          <button onClick={toggleShuffle} className={`icon-btn ${isShuffled ? 'active' : ''}`}>
+          <button
+            onClick={toggleShuffle}
+            className={`icon-btn ${
+              isShuffled ? 'active' : ''
+            } transition-transform active:scale-90`}
+          >
             <Shuffle size={20} />
           </button>
-          <button onClick={playPrevious} className="icon-btn">
+          <button
+            onClick={playPrevious}
+            className="icon-btn transition-transform active:scale-90"
+          >
             <SkipBack size={28} />
           </button>
-          <button onClick={togglePlayPause} className="play-pause-btn">
+          <button
+            onClick={togglePlayPause}
+            className="play-pause-btn transition-transform active:scale-90"
+          >
             {isPlaying ? <Pause size={36} /> : <Play size={36} />}
           </button>
-          <button onClick={playNext} className="icon-btn">
+          <button onClick={playNext} className="icon-btn transition-transform active:scale-90">
             <SkipForward size={28} />
           </button>
           <button
             onClick={() => setRepeatMode()}
-            className={`icon-btn ${repeatMode !== 'none' ? 'active' : ''}`}
+            className={`icon-btn ${
+              repeatMode !== 'none' ? 'active' : ''
+            } transition-transform active:scale-90`}
           >
             <Repeat size={20} />
             {repeatMode === 'one' && <span className="repeat-one-badge">1</span>}

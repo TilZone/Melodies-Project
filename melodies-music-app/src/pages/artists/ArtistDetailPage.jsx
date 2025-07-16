@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Typography, Spin, Card, Col, Row, Avatar, Button, Alert } from 'antd';
+import { Spin, Avatar, Card, Row, Col, Alert } from 'antd';
 import { UserOutlined, PlayCircleFilled } from '@ant-design/icons';
 import { fetchArtistById } from '../../services/artist.service.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';

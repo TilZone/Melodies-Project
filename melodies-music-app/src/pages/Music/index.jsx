@@ -260,7 +260,16 @@ const MusicPage = () => {
               </p>
             ))
           ) : (
-            <p className="text-gray-500 text-2xl">No lyrics available for this song.</p>
+            return (
+      <div className="p-4 flex-grow flex items-center justify-center">
+        <Alert
+          message={`Could Not Load Song - ID: ${id}`}
+          description={error}
+          type="error"
+          showIcon
+        />
+      </div>
+    );
           )}
         </div>
       </div>
