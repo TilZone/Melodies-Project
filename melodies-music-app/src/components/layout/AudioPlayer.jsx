@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { usePlayerStore } from '../../store/usePlayerStore';
 
 const AudioPlayer = () => {
@@ -14,7 +14,8 @@ const AudioPlayer = () => {
     togglePlayPause,
   } = usePlayerStore();
 
-  // Effect to control playback (play/pause)
+  // Effect to synchronize the player's state (playing/paused) with the store.
+  // This ensures that calling playSong() or pause() from anywhere updates the actual audio tag.
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {

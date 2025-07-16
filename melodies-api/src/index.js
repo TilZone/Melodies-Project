@@ -8,6 +8,7 @@ import cors from 'cors';
 import songRoutes from './routes/songRoutes.js';
 import artistRoutes from './routes/artistRoutes.js';
 import albumRoutes from './routes/albumRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Load environment variables
 // dotenv/config đã tự động load
@@ -40,6 +41,7 @@ app.use(cors(corsOptions));
 app.use('/api/songs', songRoutes);
 app.use('/api/artists', artistRoutes);
 app.use('/api/albums', albumRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {

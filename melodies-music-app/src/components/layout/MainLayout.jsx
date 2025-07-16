@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import {
   SearchOutlined,
-  MenuOutlined,
   HomeOutlined,
   CompassOutlined,
   ReconciliationOutlined,
@@ -10,12 +9,15 @@ import {
 } from '@ant-design/icons';
 import PlayerBar from './PlayerBar';
 import AudioPlayer from './AudioPlayer'; // Import the AudioPlayer
+import ThemeToggle from '../common/ThemeToggle';
 
 const NavItem = ({ to, icon, label }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `flex flex-col items-center gap-1 ${isActive ? 'text-[#EE10B0]' : 'text-[#0E9EEF]'}`
+      `flex flex-col items-center gap-1 ${
+        isActive ? 'text-pink-500 dark:text-[#EE10B0]' : 'text-sky-600 dark:text-[#0E9EEF]'
+      }`
     }
   >
     {React.createElement(icon, { className: 'text-[32px]' })}
@@ -51,7 +53,7 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#412C3A] to-[#0E1920] text-white">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b dark:from-[#412C3A] dark:to-[#0E1920] text-gray-800 dark:text-white transition-colors duration-300">
       <AudioPlayer /> {/* Add the player here */}
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
@@ -59,9 +61,7 @@ const MainLayout = () => {
           <SearchOutlined className="text-[#0E9EEF] text-[32px]" />
         </button>
         <h1 className="text-[32px] font-bold text-center">{getHeaderTitle(pathname)}</h1>
-        <button>
-          <MenuOutlined className="text-[#EE10B0] text-[32px]" />
-        </button>
+        <ThemeToggle />
       </header>
       {/* Main Content */}
       <main className="px-6 pb-32">

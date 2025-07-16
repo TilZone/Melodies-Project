@@ -18,18 +18,34 @@ const shuffle = (array) => {
 export const usePlayerStore = create(
   persist(
     (set, get) => ({
-      // STATE
+      // --- STATE ---
+      /** @type {object|null} The currently active song object. */
       currentSong: null,
-      queue: [],
-      originalQueue: [],
+      /** @type {boolean} The playing state of the audio. */
       isPlaying: false,
-      volume: 0.7,
-      duration: 0,
+      /** @type {number} The current playback time of the audio in seconds. */
       currentTime: 0,
+      /** @type {number} The total duration of the audio in seconds. */
+      duration: 0,
+      /** @type {number} The player volume, from 0 to 1. */
+      volume: 0.75,
+      /** @type {Array<object>} The list of songs to be played. */
+      queue: [],
+      /** @type {Array<object>} A copy of the original queue to restore from shuffle mode. */
+      originalQueue: [],
+      /** @type {boolean} The shuffle state. */
       isShuffled: false,
+      /** @type {'none'|'one'|'all'} The repeat mode. */
       repeatMode: 'none', // 'none', 'one', 'all'
 
-      // ACTIONS
+      // --- ACTIONS ---
+      /**
+       * Sets a new song to play and optionally a new queue.
+       * If the clicked song is the same as the current one, it toggles play/pause.
+       * @param {object} song - The song object to play.
+       * @param {Array<object>} [newQueue] - Optional new queue to set.
+       */
+
       playSong: (song, songQueue = []) => {
         const { currentSong, isPlaying, isShuffled } = get();
 
@@ -163,6 +179,7 @@ export const usePlayerStore = create(
         volume: state.volume,
         isShuffled: state.isShuffled,
         repeatMode: state.repeatMode,
+        theme: state.theme,
       }),
     }
   )

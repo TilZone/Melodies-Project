@@ -2,52 +2,25 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchSongById } from '../../services/song.service.js';
 import { usePlayerStore } from '../../store/usePlayerStore.js';
-import { Spin, Alert, Button, Slider, Typography } from 'antd';
+import { Spin, Alert, Button, Slider } from 'antd';
+import { useMediaQuery } from 'react-responsive';
+import MobilePlayer from './MobilePlayer';
+
+// Desktop-specific imports
 import {
   PauseCircleFilled,
   PlayCircleFilled,
   StepForwardOutlined,
   StepBackwardOutlined,
   SoundOutlined,
-  MoreOutlined,
 } from '@ant-design/icons';
 import { Repeat, Shuffle } from 'lucide-react';
-import MobilePlayer from './MobilePlayer';
-
-const { Title, Text } = Typography;
 
 // Custom hook to check screen size
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(window.matchMedia(query).matches);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    const listener = () => setMatches(media.matches);
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [query]);
-
-  return matches;
-};
+const useResponsive = () => useMediaQuery({ query: '(max-width: 768px)' });
 
 // Helper to parse LRC format lyrics: [mm:ss.xx] text
-const parseLyrics = (lyricsText) => {
-  if (!lyricsText) return [];
-  const lines = lyricsText.split('\n');
-  const result = [];
-  for (const line of lines) {
-    const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
-    if (match) {
-      const minutes = parseInt(match[1], 10);
-      const seconds = parseInt(match[2], 10);
-      const milliseconds = parseInt(match[3], 10);
-      const time = minutes * 60 + seconds + milliseconds / 1000;
-      const text = match[4].trim();
-      result.push({ time, text });
-    }
-  }
-  return result;
-};
+import { useLyricParser } from '../../hooks/useLyricParser';
 
 const formatTime = (seconds) => {
   const date = new Date(seconds * 1000);
@@ -61,7 +34,7 @@ const MusicPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useResponsive();
   const lyricsContainerRef = useRef(null);
   const activeLyricRef = useRef(null);
 
@@ -81,34 +54,38 @@ const MusicPage = () => {
     setVolume,
     toggleShuffle,
     setRepeatMode,
+    queue,
   } = usePlayerStore();
 
-  const lyrics = parseLyrics(currentSong?.lyrics);
+  const lyrics = useLyricParser(currentSong?.lyrics);
 
   useEffect(() => {
     const loadSong = async () => {
-      if (id && id !== currentSong?.id) {
+      if (id && id !== currentSong?._id) {
         setLoading(true);
         setError(null);
         try {
-          const fetchedSong = await fetchSongById(id);
-          if (fetchedSong) {
-            playSong(fetchedSong, [fetchedSong]); // Play song and set it as the queue
+          const songFromQueue = queue.find((s) => s._id === id);
+          if (songFromQueue) {
+            playSong(songFromQueue, queue);
           } else {
-            setError('Song not found.');
+            const fetchedSong = await fetchSongById(id);
+            if (fetchedSong) {
+              playSong(fetchedSong, [fetchedSong]); // Play song and set it as the queue
+            } else {
+              setError('Song not found.');
+            }
           }
         } catch (err) {
           setError('Failed to load the song.');
         } finally {
           setLoading(false);
         }
-      } else {
-        setLoading(false);
       }
     };
 
     loadSong();
-  }, [id, playSong, currentSong?.id]);
+  }, [id, playSong, currentSong?._id, queue]);
 
   // Find the current active lyric line
   const activeLyricIndex = lyrics.findIndex((line, index) => {
@@ -156,121 +133,127 @@ const MusicPage = () => {
 
   // Render Mobile UI if on a small screen
   if (isMobile) {
-    return <MobilePlayer onClose={() => navigate(-1)} />;
+    return <MobilePlayer song={currentSong} onClose={() => navigate(-1)} />;
   }
 
   // Render Desktop UI
   return (
-    <div className="flex flex-row h-[calc(100vh-var(--header-height)-var(--player-height))] text-white bg-gradient-to-br from-[#1c1c1c] to-[#121212]">
-      {/* Left Side: Album Art & Controls */}
-      <div className="w-1/2 flex flex-col items-center justify-center p-8 space-y-6">
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Blurred Background */}
+      <div className="absolute inset-0 z-0">
         <img
           src={currentSong.coverArt}
-          alt={currentSong.title}
-          className="w-full max-w-md aspect-square rounded-lg shadow-2xl object-cover"
+          alt="background"
+          className="w-full h-full object-cover filter blur-2xl scale-110"
         />
-        <div className="w-full max-w-md text-center">
-          <Title level={2} className="text-white">
-            {currentSong.title}
-          </Title>
-          <Text className="text-gray-400 text-lg">{currentSong.artist?.name}</Text>
-        </div>
-        <div className="w-full max-w-md space-y-3">
-          <Slider
-            min={0}
-            max={duration}
-            value={currentTime}
-            onChange={setCurrentTime}
-            tooltip={{ formatter: formatTime }}
-            step={0.1}
-          />
-          <div className="flex justify-between text-xs text-gray-400">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-center space-x-8 w-full max-w-md">
-          <button
-            onClick={toggleShuffle}
-            className={`text-gray-400 hover:text-white transition-colors ${isShuffled ? 'text-green-500' : ''}`}
-          >
-            <Shuffle size={20} />
-          </button>
-          <button
-            onClick={playPrevious}
-            className="text-gray-300 hover:text-white transition-colors"
-          >
-            <StepBackwardOutlined style={{ fontSize: '24px' }} />
-          </button>
-          <button onClick={togglePlayPause} className="text-white">
-            {isPlaying ? (
-              <PauseCircleFilled style={{ fontSize: '64px' }} />
-            ) : (
-              <PlayCircleFilled style={{ fontSize: '64px' }} />
-            )}
-          </button>
-          <button onClick={playNext} className="text-gray-300 hover:text-white transition-colors">
-            <StepForwardOutlined style={{ fontSize: '24px' }} />
-          </button>
-          <button
-            onClick={() => setRepeatMode()}
-            className={`text-gray-400 hover:text-white transition-colors relative ${repeatMode !== 'none' ? 'text-green-500' : ''}`}
-          >
-            <Repeat size={20} />
-            {repeatMode === 'one' && (
-              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
-                1
-              </span>
-            )}
-          </button>
-        </div>
-        <div className="flex items-center space-x-2 w-full max-w-md">
-          <SoundOutlined />
-          <Slider
-            className="w-24"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={setVolume}
-          />
-        </div>
+        <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
       </div>
 
-      {/* Right Side: Lyrics */}
-      <div className="w-1/2 flex flex-col p-8">
-        <div className="flex justify-between items-center mb-4">
-          <Title level={3} className="text-white">
-            Lyrics
-          </Title>
-          <Button icon={<MoreOutlined />} type="text" className="text-gray-400 hover:text-white" />
+      {/* Content */}
+      <div className="relative z-10 desktop-player-grid">
+        {/* Left Column: Cover Art and Controls */}
+        <div className="flex flex-col items-center justify-center p-8">
+          <img
+            src={currentSong.coverArt}
+            alt={currentSong.title}
+            className="w-64 h-64 rounded-lg shadow-2xl mb-6"
+          />
+          <h2 className="text-2xl font-bold text-white">{currentSong.title}</h2>
+          <p className="text-lg text-gray-300 mb-6">{currentSong.artist?.name}</p>
+          <div className="w-full max-w-sm">
+            <Slider
+              min={0}
+              max={duration}
+              value={currentTime}
+              onChange={(value) => setCurrentTime(value)}
+              tooltip={{ formatter: formatTime }}
+              step={0.1}
+              trackStyle={{ backgroundColor: '#ec4899' }}
+              handleStyle={{ borderColor: '#ec4899' }}
+            />
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center space-x-6 mt-4">
+            <button
+              onClick={toggleShuffle}
+              className={`text-2xl ${isShuffled ? 'text-pink-500' : 'text-gray-500 dark:text-gray-400'} hover:text-pink-500 dark:hover:text-pink-400 transition-colors`}
+            >
+              <Shuffle size={24} />
+            </button>
+            <button
+              onClick={playPrevious}
+              className="text-4xl text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+            >
+              <StepBackwardOutlined />
+            </button>
+            <button
+              onClick={togglePlayPause}
+              className="text-7xl text-pink-500 hover:text-pink-600 transition-transform hover:scale-105"
+            >
+              {isPlaying ? <PauseCircleFilled /> : <PlayCircleFilled />}
+            </button>
+            <button
+              onClick={playNext}
+              className="text-4xl text-gray-800 dark:text-gray-200 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+            >
+              <StepForwardOutlined />
+            </button>
+            <button
+              onClick={() => setRepeatMode()}
+              className={`text-2xl relative ${repeatMode !== 'none' ? 'text-pink-500' : 'text-gray-500 dark:text-gray-400'} hover:text-pink-500 dark:hover:text-pink-400 transition-colors`}
+            >
+              <Repeat size={24} />
+              {repeatMode === 'one' && (
+                <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                  1
+                </span>
+              )}
+            </button>
+          </div>
+          <div className="flex items-center space-x-2 mt-4 w-full max-w-xs">
+            <SoundOutlined className="text-gray-500 dark:text-gray-400" />
+            <Slider
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={setVolume}
+              className="flex-grow"
+              trackStyle={{ backgroundColor: '#9ca3af' }}
+              handleStyle={{ borderColor: '#9ca3af' }}
+            />
+          </div>
         </div>
-        <div
-          ref={lyricsContainerRef}
-          className="lyrics-container flex-grow overflow-y-auto pr-4 space-y-4"
-        >
-          {lyrics.length > 0 ? (
-            lyrics.map((line, index) => (
-              <p
-                key={index}
-                ref={index === activeLyricIndex ? activeLyricRef : null}
-                className={`transition-all duration-300 text-2xl font-medium leading-relaxed ${index === activeLyricIndex ? 'text-white scale-105' : 'text-gray-500'}`}
-              >
-                {line.text}
-              </p>
-            ))
-          ) : (
-            return (
-      <div className="p-4 flex-grow flex items-center justify-center">
-        <Alert
-          message={`Could Not Load Song - ID: ${id}`}
-          description={error}
-          type="error"
-          showIcon
-        />
-      </div>
-    );
-          )}
+
+        {/* Right Column: Lyrics */}
+        <div className="lyrics-container-desktop bg-black/20 dark:bg-black/40 backdrop-blur-sm rounded-lg">
+          <h3 className="text-xl font-bold mb-4 text-white p-4 border-b border-white/10">Lyrics</h3>
+          <div
+            ref={lyricsContainerRef}
+            className="lyrics-scroll-container space-y-4 text-center p-4"
+          >
+            {lyrics.length > 0 ? (
+              lyrics.map((line, index) => (
+                <p
+                  key={index}
+                  ref={index === activeLyricIndex ? activeLyricRef : null}
+                  className={`lyric-line ${
+                    index === activeLyricIndex
+                      ? 'text-pink-400 font-bold scale-105'
+                      : 'text-gray-300'
+                  }`}
+                >
+                  {line.text}
+                </p>
+              ))
+            ) : (
+              <p className="text-gray-400">No lyrics available for this song.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Spin, Alert } from 'antd';
+import { Spin, Alert, Typography } from 'antd';
 import { fetchArtists } from '../../services/artist.service';
 import ArtistCard from '../../components/common/ArtistCard';
 

@@ -19,8 +19,6 @@ const App = () => {
       {/* Routes with MainLayout (Header, Nav, PlayerBar) */}
       <Route element={<MainLayout />}>
         {/* Redirects */}
-        <Route path="/" element={<Navigate to="/discover" replace />} />
-        <Route path="/home" element={<Navigate to="/discover" replace />} />
 
         {/* Main Pages */}
         <Route path="/discover" element={<DiscoverPage />} />

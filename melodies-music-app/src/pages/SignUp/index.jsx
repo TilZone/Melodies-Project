@@ -1,94 +1,109 @@
 import { useState } from 'react';
-import { EyeOutlined, EyeInvisibleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import AuthInput from '../../components/common/AuthInput';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement sign up logic
-    console.log('Sign up form submitted');
+    // Logic đăng ký sẽ được thêm vào sau
+    console.log('Sign up form submitted:', formData);
   };
 
   return (
-    <div className="min-h-screen bg-[#412C3A] text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[rgba(65,44,58,0.9)] to-[rgba(14,25,32,0.9)]"></div>
-
-      <div className="relative z-10 flex flex-col min-h-screen p-6">
-        {/* Header */}
-        <header className="flex-shrink-0">
+    <div className="min-h-screen bg-gradient-to-b from-[#412C3A] to-[#412C3A] relative overflow-hidden flex flex-col">
+      <div className="relative z-10 flex flex-col flex-grow justify-center px-6 py-8">
+        <div className="max-w-md w-full mx-auto">
           <button
             onClick={() => navigate(-1)}
-            className="text-[#0E9EEF] hover:text-white transition-colors"
+            className="absolute top-8 left-6 text-[#0E9EEF] hover:text-[#0E9EEF]/80 transition-colors"
           >
             <ArrowLeftOutlined className="text-3xl" />
           </button>
-        </header>
 
-        {/* Form Section */}
-        <main className="flex-grow flex flex-col justify-center">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">Create Account</h1>
-            <p className="text-white/70">Let&apos;s get you started!</p>
+          <div className="flex flex-col items-center mb-8">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/8f1dd3645598d82144088e9c431df5be509626b2?width=136"
+              alt="Melodies Logo"
+              className="w-16 h-auto mb-2"
+            />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#EE10B0] to-[#0E9EEF] bg-clip-text text-transparent">
+              Melodies
+            </h1>
           </div>
 
+          <h2 className="text-white text-2xl font-bold text-center mb-6">Create Account</h2>
+
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="relative">
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                className="w-full px-5 py-4 bg-[#612C4F]/80 rounded-2xl text-white placeholder-white/60 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#EE10B0] shadow-lg"
-                required
-              />
-            </div>
-            <div className="relative">
-              <input
-                type="email"
-                name="email"
-                placeholder="E-Mail"
-                className="w-full px-5 py-4 bg-[#612C4F]/80 rounded-2xl text-white placeholder-white/60 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#EE10B0] shadow-lg"
-                required
-              />
-            </div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                className="w-full px-5 py-4 bg-[#612C4F]/80 rounded-2xl text-white placeholder-white/60 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#EE10B0] shadow-lg pr-12"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#EE10B0] hover:text-[#EE10B0]/80"
-              >
-                {showPassword ? <EyeInvisibleOutlined size={20} /> : <EyeOutlined size={20} />}
-              </button>
-            </div>
-            <div className="pt-6">
+            <AuthInput
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Name"
+              required
+            />
+            <AuthInput
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="E-Mail"
+              required
+            />
+            <AuthInput
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Password"
+              isPassword
+              required
+            />
+            <AuthInput
+              type="tel"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleInputChange}
+              placeholder="Phone Number"
+              required
+            />
+
+            <div className="flex justify-center pt-4">
               <button
                 type="submit"
-                className="w-full bg-[#EE10B0] py-4 rounded-lg text-white font-bold hover:bg-[#d10f9f] transition-colors shadow-lg"
+                className="bg-[#EE10B0] px-8 py-3 rounded text-white text-sm font-bold hover:bg-[#d90e9b] transition-colors w-full sm:w-auto"
               >
-                Create Account
+                Create an account
               </button>
             </div>
           </form>
-        </main>
 
-        {/* Footer */}
-        <footer className="flex-shrink-0 text-center pb-4">
-          <p className="text-white/80">
-            Don&apos;t have an account?{' '}
-            <Link to="/login" className="font-bold text-[#0E9EEF] hover:underline">
-              Login
-            </Link>
-          </p>
-        </footer>
+          <div className="text-center mt-8">
+            <p className="text-white">
+              Already have an account?{' '}
+              <Link to="/login" className="font-bold text-[#0E9EEF] hover:underline">
+                Login
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

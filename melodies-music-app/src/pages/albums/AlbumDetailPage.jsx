@@ -1,115 +1,134 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeftOutlined, MoreOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, HeartOutlined } from '@ant-design/icons';
+import SongRow from '../../components/common/SongRow'; // Giả sử có component này
 
-// NOTE: This component is currently using static mock data based on the Figma design.
-// It should be updated to fetch album details by ID from an API when available.
+// Mock Data - Sẽ được thay thế bằng API sau này
+const albumData = {
+  title: 'The Eminem Show',
+  artist: { name: 'Eminem' },
+  cover_big:
+    'https://cdn.builder.io/api/v1/image/assets/TEMP/b683dc122ebed0cb216172ae7a9994fe3fdb8d25?width=320',
+  nb_tracks: 20,
+  duration: 4620, // 1h 14m in seconds
+};
+
+const songs = [
+  {
+    id: 1,
+    title: 'White America',
+    artist: { name: 'Eminem' },
+    duration: 324,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+  {
+    id: 2,
+    title: 'Business',
+    artist: { name: 'Eminem' },
+    duration: 251,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+  {
+    id: 3,
+    title: "Cleaning' Out My Closet",
+    artist: { name: 'Eminem' },
+    duration: 297,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+  {
+    id: 4,
+    title: 'Square Dance',
+    artist: { name: 'Eminem' },
+    duration: 323,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+  {
+    id: 5,
+    title: 'When The Music Stops',
+    artist: { name: 'Eminem' },
+    duration: 269,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+  {
+    id: 6,
+    title: 'Soldier',
+    artist: { name: 'Eminem' },
+    duration: 226,
+    album: {
+      cover_small:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/a4bb52d6158b93c2a88f5d18095c7f57f1819ab5?width=100',
+    },
+  },
+];
 
 const AlbumDetailPage = () => {
-  const navigate = useNavigate();
-
-  // Mock data matching the Figma design for "The Eminem Show"
-  const albumData = {
-    title: 'The Eminem Show',
-    artist: 'Eminem',
-    cover:
-      'https://cdn.builder.io/api/v1/image/assets/TEMP/b683dc122ebed0cb216172ae7a9994fe3fdb8d25?width=320',
-    artistImage: 'https://i.scdn.co/image/ab676161000051743e3e53307a3b2510a972f3c8', // Placeholder artist image
-    songCount: '20 songs',
-    duration: '1h 14m',
-  };
-
-  const songs = [
-    { id: 1, title: 'White America', isPlaying: true },
-    { id: 2, title: 'Business' },
-    { id: 3, title: "Cleaning' Out My Closet" },
-    { id: 4, title: 'Square Dance' },
-    { id: 5, title: 'When The Music Stops' },
-    { id: 6, title: 'Soldier' },
-    { id: 7, title: 'Say Good Bye Hollywood' },
-    { id: 8, title: 'Drips' },
-    { id: 9, title: 'Without Me' },
-    { id: 10, title: 'Sing For The Moment' },
-  ];
-
-  const SongRow = ({ song, rank }) => (
-    <div
-      className="flex items-center bg-gradient-to-r from-[#E71C1C]/80 to-[#6A1C27]/80 rounded-md p-3 shadow-md"
-      // onClick={() => playSong(song)} // TODO: Integrate with player store
-    >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        {song.isPlaying ? (
-          <svg
-            width="20"
-            height="24"
-            viewBox="0 0 20 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M3.33325 7C3.33325 6.20435 3.59664 5.44129 4.06549 4.87868C4.53433 4.31607 5.17021 4 5.83325 4H6.66659C7.32963 4 7.96551 4.31607 8.43435 4.87868C8.90319 5.44129 9.16658 6.20435 9.16658 7V17C9.16658 17.7956 8.90319 18.5587 8.43435 19.1213C7.96551 19.6839 7.32963 20 6.66659 20H5.83325C5.17021 20 4.53433 19.6839 4.06549 19.1213C3.59664 18.5587 3.33325 17.7956 3.33325 17V7ZM13.3333 4C12.6702 4 12.0343 4.31607 11.5655 4.87868C11.0966 5.44129 10.8333 6.20435 10.8333 7V17C10.8333 17.7956 11.0966 18.5587 11.5655 19.1213C12.0343 19.6839 12.6702 20 13.3333 20H14.1666C14.8296 20 15.4655 19.6839 15.9344 19.1213C16.4032 18.5587 16.6666 17.7956 16.6666 17V7C16.6666 6.20435 16.4032 5.44129 15.9344 4.87868C15.4655 4.31607 14.8296 4 14.1666 4H13.3333Z"
-              fill="white"
-            />
-          </svg>
-        ) : (
-          <span className="text-white text-base font-semibold w-5 text-center">{rank}</span>
-        )}
-        <div className="flex flex-col min-w-0">
-          <h3 className="text-white text-base font-semibold truncate">{song.title}</h3>
-          <p className="text-white text-xs font-light opacity-80 truncate">{albumData.artist}</p>
-        </div>
-      </div>
-      <MoreOutlined className="text-white text-lg" />
-    </div>
-  );
+  // Logic để lấy albumId từ URL và fetch data sẽ được thêm vào sau
 
   return (
-    <div className="pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <ArrowLeftOutlined
-          className="text-[#0E9EEF] text-2xl cursor-pointer"
-          onClick={() => navigate(-1)}
-        />
-        <h1 className="text-2xl font-extrabold">
-          <span className="text-[#0E9EEF]">Alb</span>
-          <span className="text-[#EE10B0]">um</span>
-        </h1>
-        <MoreOutlined className="text-[#EE10B0] text-2xl cursor-pointer" />
-      </div>
-
+    <div className="text-white">
       {/* Album Info */}
-      <div className="relative p-4 rounded-lg bg-gradient-to-r from-red-600/50 to-red-900/50 mb-6">
-        <div className="flex gap-4">
-          <img
-            src={albumData.cover}
-            alt={albumData.title}
-            className="w-32 h-32 rounded-lg object-cover shadow-lg"
-          />
-          <div className="flex flex-col justify-between">
-            <h2 className="text-white text-xl font-bold">{albumData.title}</h2>
-            <div className="flex items-center gap-2">
-              <img
-                src={albumData.artistImage}
-                alt={albumData.artist}
-                className="w-8 h-8 rounded-full"
-              />
-              <span className="text-white text-sm font-semibold">{albumData.artist}</span>
-            </div>
-            <div className="text-white text-xs font-semibold">
-              <span>{albumData.songCount}</span>
-              <span className="mx-2">•</span>
-              <span>{albumData.duration}</span>
+      <div className="relative mx-5 mt-2 mb-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#DA1111] via-[#FB0F0F]/8 to-transparent rounded-lg shadow-[3px_12px_4px_rgba(0,0,0,0.3)]"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#EF2424] via-[#FD1111]/2 to-transparent rounded-lg opacity-60"></div>
+
+        <div className="relative p-6">
+          <div className="flex flex-col md:flex-row gap-8">
+            <img
+              src={albumData.cover_big}
+              alt={albumData.title}
+              className="w-[160px] h-[160px] md:w-[200px] md:h-[200px] rounded-lg object-cover shadow-[7px_9px_4px_rgba(0,0,0,0.35)] flex-shrink-0"
+            />
+            <div className="flex flex-col justify-end">
+              <h2 className="text-white text-2xl md:text-4xl font-bold font-vazirmatn leading-normal">
+                {albumData.title}
+              </h2>
+              <div className="flex items-center gap-2 mt-4">
+                <img
+                  src="https://e-cdns-images.dzcdn.net/images/artist/1324432e0b5d92c12f86346de63285f3/264x264-000000-80-0-0.jpg" // Placeholder
+                  alt={albumData.artist.name}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <span className="text-white text-base font-semibold font-vazirmatn">
+                  {albumData.artist.name}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 mt-4 text-sm text-gray-300">
+                <span>{`${albumData.nb_tracks} songs`}</span>
+                <span>•</span>
+                <span>{`${Math.floor(albumData.duration / 3600)}h ${Math.floor((albumData.duration % 3600) / 60)}m`}</span>
+              </div>
+              <div className="flex items-center gap-4 mt-6">
+                <button className="bg-[#EE10B0] text-black px-6 py-2 rounded-lg font-semibold hover:bg-[#d90e9b] transition-colors flex items-center gap-2">
+                  <PlayCircleOutlined />
+                  Play
+                </button>
+                <button className="bg-black/20 border border-white/50 text-white px-6 py-2 rounded-lg font-semibold hover:bg-white/20 transition-colors flex items-center gap-2">
+                  <HeartOutlined />
+                  Like
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Songs List */}
-      <div className="space-y-3">
+      <div className="px-6 space-y-1 pb-16">
         {songs.map((song, index) => (
-          <SongRow key={song.id} song={song} rank={index + 1} />
+          <SongRow key={song.id} song={song} index={index + 1} />
         ))}
       </div>
     </div>

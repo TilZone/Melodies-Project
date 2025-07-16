@@ -1,41 +1,71 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Spin, Avatar, Card, Row, Col, Alert } from 'antd';
-import { UserOutlined, PlayCircleFilled } from '@ant-design/icons';
-import { fetchArtistById } from '../../services/artist.service.js';
-import { usePlayerStore } from '../../store/usePlayerStore.js';
+import { useParams } from 'react-router-dom';
+import { Alert, Spin } from 'antd';
+import { fetchArtistDetails } from '../../services/artist.service';
+import { CheckCircleFilled } from '@ant-design/icons';
 
-const { Title, Text, Paragraph } = Typography;
-const { Meta } = Card;
+import SectionHeader from '../../components/common/SectionHeader';
+import SongRow from '../../components/common/SongRow';
+import AlbumCard from '../../components/common/AlbumCard';
+import ArtistCard from '../../components/common/ArtistCard';
 
 const ArtistDetailPage = () => {
-  const { id: artistId } = useParams(); // Lấy artistId từ URL param /artist/:id
+  const { artistId } = useParams();
   const [artist, setArtist] = useState(null);
+  const [topSongs, setTopSongs] = useState([]);
+  const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const playSong = usePlayerStore((state) => state.playSong);
 
-  // Gọi API lấy thông tin nghệ sĩ khi artistId thay đổi
+  // Mock data for sections without API yet
+  const relatedArtists = [
+    {
+      id: 'related-1',
+      name: '50 Cent',
+      picture_medium:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/2db5bda7f555d3eebb796e823a110bc0241591ce?width=369',
+    },
+    {
+      id: 'related-2',
+      name: 'Snoop Dogg',
+      picture_medium:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/8f1eb15d7e6354d0442424b548cf6b462f8120a6?width=369',
+    },
+    {
+      id: 'related-3',
+      name: '2Pac',
+      picture_medium:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/009e4a160e51ff1e85767e9daa02275b738a7569?width=369',
+    },
+    {
+      id: 'related-4',
+      name: 'JAY-Z',
+      picture_medium:
+        'https://cdn.builder.io/api/v1/image/assets/TEMP/769c97939df8a84c08d5c93f8ba7bd266296df15?width=369',
+    },
+  ];
+
   useEffect(() => {
-    const loadArtist = async () => {
-      if (artistId) {
+    const getArtistDetails = async () => {
+      try {
         setLoading(true);
-        setError(null);
-        try {
-          const fetchedArtist = await fetchArtistById(artistId);
-          setArtist(fetchedArtist || null);
-        } catch (err) {
-          setError(err.message || 'Lỗi khi tải thông tin nghệ sĩ.');
-          setArtist(null);
-        } finally {
-          setLoading(false);
+        const response = await fetchArtistDetails(artistId);
+        if (response.success) {
+          setArtist(response.data.artist);
+          setTopSongs(response.data.topSongs || []);
+          setAlbums(response.data.albums || []);
+        } else {
+          throw new Error(response.message || 'Failed to fetch artist details');
         }
-      } else {
+      } catch (err) {
+        setError(err.message);
+        console.error(err);
+      } finally {
         setLoading(false);
-        setArtist(null);
       }
     };
-    loadArtist();
+
+    getArtistDetails();
   }, [artistId]);
 
   if (loading) {
@@ -47,152 +77,65 @@ const ArtistDetailPage = () => {
   }
 
   if (error) {
-    return (
-      <div className="text-center p-8">
-        <Alert message={error} type="error" showIcon className="mb-4" />
-        <Link to="/discover" className="text-green-500 hover:underline">
-          Quay lại Discover
-        </Link>
-      </div>
-    );
+    return <Alert message="Error" description={error} type="error" showIcon />;
   }
 
   if (!artist) {
-    return (
-      <div className="text-center p-8">
-        <Title level={3} className="text-gray-800 dark:text-gray-200">
-          Không tìm thấy nghệ sĩ.
-        </Title>
-        <Link to="/discover" className="text-green-500 hover:underline">
-          Quay lại Discover
-        </Link>
-      </div>
-    );
+    return <Alert message="Error" description="Artist not found." type="error" showIcon />;
   }
 
   return (
-    <div className="p-4">
-      {/* Thông tin nghệ sĩ */}
-      <div className="flex flex-col md:flex-row items-center md:items-start mb-8 bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md">
-        <Avatar
-          size={{ xs: 80, sm: 100, md: 120, lg: 160, xl: 200 }}
-          src={artist.imageUrl}
-          icon={<UserOutlined />}
-          className="mb-4 md:mb-0 md:mr-6 rounded-full border-4 border-green-500 shadow-lg"
-          onError={(e) => {
-            e.currentTarget.src = 'https://placehold.co/200x200/535353/FFFFFF?text=Artist';
-          }}
-        />
-        <div className="text-center md:text-left">
-          <Title level={2} className="text-gray-900 dark:text-gray-100 mb-2">
-            {artist.name}
-          </Title>
-          <Paragraph className="text-gray-700 dark:text-gray-300 leading-relaxed max-w-2xl">
-            {artist.bio}
-          </Paragraph>
-          <Button
-            type="primary"
-            size="large"
-            className="mt-4 rounded-full bg-green-500 hover:bg-green-600 border-none"
-          >
-            Follow
-          </Button>
+    <div className="text-white pb-24">
+      {/* Artist Hero Section */}
+      <div className="relative px-5 md:px-8 lg:px-16 mb-8">
+        <div className="relative rounded-lg overflow-hidden shadow-2xl">
+          <img
+            src={artist.picture_xl || artist.picture_big}
+            alt={artist.name}
+            className="w-full object-cover rounded-lg h-[216px] md:h-[422px]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent rounded-lg"></div>
+          <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 flex items-end gap-2">
+            <h1 className="text-white font-bold font-vazirmatn text-[32px] md:text-[96px]">
+              {artist.name}
+            </h1>
+            <CheckCircleFilled className="text-[#0E9EEF] text-xl md:text-3xl mb-2 md:mb-8" />
+          </div>
         </div>
       </div>
 
-      {/* Top songs section */}
-      {artist.topSongs && artist.topSongs.length > 0 && (
-        <div className="mb-8">
-          <Title level={3} className="text-gray-800 dark:text-gray-200 mb-4">
-            Top Songs
-          </Title>
-          <Row gutter={[16, 16]}>
-            {artist.topSongs.map((song) => (
-              <Col xs={24} sm={12} md={8} lg={6} xl={4} key={song.id}>
-                <Card
-                  hoverable
-                  className="rounded-lg shadow-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 overflow-hidden"
-                  cover={
-                    <div className="relative group">
-                      <img
-                        alt={song.title}
-                        src={song.coverArt}
-                        className="w-full h-auto object-cover rounded-t-lg"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            'https://placehold.co/150x150/535353/FFFFFF?text=No+Image';
-                        }}
-                      />
-                      <div
-                        className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-lg cursor-pointer"
-                        onClick={() => playSong(song)}
-                      >
-                        <PlayCircleFilled className="text-white text-5xl" />
-                      </div>
-                    </div>
-                  }
-                >
-                  <Meta
-                    title={
-                      <Link
-                        to={`/music/${song.id}`}
-                        className="text-gray-900 dark:text-gray-100 hover:text-green-500 transition-colors"
-                      >
-                        {song.title}
-                      </Link>
-                    }
-                    description={
-                      <Text className="text-gray-600 dark:text-gray-400">{artist.name}</Text>
-                    }
-                  />
-                  <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2 block">
-                    Plays: {song.playCount?.toLocaleString() || 0}
-                  </Text>
-                </Card>
-              </Col>
+      {/* Main Content */}
+      <div className="px-6 md:px-8 lg:px-16 space-y-12">
+        {/* Popular Songs */}
+        <section>
+          <SectionHeader title="Popular" highlight="Songs" />
+          <div className="space-y-3">
+            {topSongs.map((song, index) => (
+              <SongRow key={song.id} song={song} index={index + 1} />
             ))}
-          </Row>
-        </div>
-      )}
+          </div>
+        </section>
 
-      {/* Albums section */}
-      {artist.albums && artist.albums.length > 0 && (
-        <div className="mb-8">
-          <Title level={3} className="text-gray-800 dark:text-gray-200 mb-4">
-            Albums
-          </Title>
-          <Row gutter={[16, 16]}>
-            {artist.albums.map((album) => (
-              <Col xs={24} sm={12} md={8} lg={6} xl={4} key={album.id}>
-                <Card
-                  hoverable
-                  className="rounded-lg shadow-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 overflow-hidden"
-                  cover={
-                    <img
-                      alt={album.title}
-                      src={album.coverArt}
-                      className="w-full h-auto object-cover rounded-t-lg"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          'https://placehold.co/150x150/535353/FFFFFF?text=No+Image';
-                      }}
-                    />
-                  }
-                >
-                  <Meta
-                    title={<Text className="text-gray-900 dark:text-gray-100">{album.title}</Text>}
-                    description={
-                      <Text className="text-gray-600 dark:text-gray-400">
-                        {new Date(album.releaseDate).getFullYear()}
-                      </Text>
-                    }
-                  />
-                </Card>
-              </Col>
+        {/* Artist Albums */}
+        <section>
+          <SectionHeader title="Artist's" highlight="Albums" />
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+            {albums.map((album) => (
+              <AlbumCard key={album.id} album={album} />
             ))}
-          </Row>
-        </div>
-      )}
+          </div>
+        </section>
+
+        {/* Related Artists */}
+        <section className="pb-16">
+          <SectionHeader title={`${artist.name} Fans`} highlight="Also Listen To" />
+          <div className="flex gap-8 overflow-x-auto scrollbar-hide pb-4">
+            {relatedArtists.map((relatedArtist) => (
+              <ArtistCard key={relatedArtist.id} artist={relatedArtist} />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

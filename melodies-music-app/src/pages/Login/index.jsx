@@ -1,91 +1,106 @@
 import { useState } from 'react';
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import AuthInput from '../../components/common/AuthInput';
+import SocialButton from '../../components/common/SocialButton';
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login form submitted');
+    // Logic đăng nhập sẽ được thêm vào sau
+    console.log('Login form submitted:', formData);
   };
 
   return (
-    <div className="min-h-screen bg-[#412C3A] text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[rgba(65,44,58,0.9)] to-[rgba(14,25,32,0.9)]"></div>
-
-      <div className="relative z-10 flex flex-col justify-between min-h-screen p-6">
-        {/* Header */}
-        <div className="flex-shrink-0 text-center pt-8">
-          <div className="inline-flex items-center gap-2 mb-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#412C3A] to-[#412C3A] relative overflow-hidden flex flex-col">
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col flex-grow justify-center px-6 py-8">
+        <div className="max-w-md w-full mx-auto">
+          {/* Logo and brand */}
+          <div className="flex flex-col items-center mb-12">
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/a464e4f82fd0b236675181000f6da0e8e026cd19?width=136"
               alt="Melodies Logo"
-              className="w-16 h-auto"
+              className="w-16 h-auto mb-2"
             />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-[#EE10B0] to-[#0E9EEF] bg-clip-text text-transparent">
               Melodies
             </h1>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-8">Login To Continue</h2>
-        </div>
 
-        {/* Login Form */}
-        <div className="flex-grow">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
-              <input
+          {/* Login form */}
+          <div className="space-y-6">
+            <h2 className="text-white text-2xl font-bold text-center mb-6">Login To Continue</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <AuthInput
                 type="email"
                 name="email"
+                value={formData.email}
+                onChange={handleInputChange}
                 placeholder="E-Mail"
-                className="w-full px-5 py-4 bg-[#612C4F]/80 rounded-2xl text-white placeholder-white/60 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#EE10B0] shadow-lg"
                 required
               />
-            </div>
-
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
+              <AuthInput
+                type="password"
                 name="password"
+                value={formData.password}
+                onChange={handleInputChange}
                 placeholder="Password"
-                className="w-full px-5 py-4 bg-[#612C4F]/80 rounded-2xl text-white placeholder-white/60 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#EE10B0] shadow-lg pr-12"
+                isPassword
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#EE10B0] hover:text-[#EE10B0]/80"
-              >
-                {showPassword ? <EyeInvisibleOutlined size={20} /> : <EyeOutlined size={20} />}
-              </button>
-            </div>
 
-            <div className="flex justify-between items-center pt-4">
-              <button type="button" className="text-sm font-bold text-white/80 hover:text-white">
-                Forgot password?
-              </button>
-              <button
-                type="submit"
-                className="bg-[#EE10B0] px-8 py-3 rounded-lg text-white text-sm font-bold hover:bg-[#d10f9f] transition-colors shadow-lg"
-              >
-                Login
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Footer section */}
-        <div className="flex-shrink-0 text-center pb-4">
-          <div className="flex items-center justify-center gap-4 my-8">
-            <div className="h-px w-full bg-white/20"></div>
-            <span className="text-white/80 font-semibold">OR</span>
-            <div className="h-px w-full bg-white/20"></div>
+              <div className="flex justify-between items-center pt-2">
+                <Link to="/forgot-password" className="text-sm text-white hover:text-white/80">
+                  Forgot password?
+                </Link>
+                <button
+                  type="submit"
+                  className="bg-[#EE10B0] px-8 py-2 rounded text-white text-sm font-bold hover:bg-[#d90e9b] transition-colors"
+                >
+                  Login
+                </button>
+              </div>
+            </form>
           </div>
-          <p className="text-white/80">Don&apos;t have an account?</p>
-          <Link to="/signup" className="font-bold text-[#0E9EEF] hover:underline">
-            Sign Up Here
-          </Link>
+
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/20"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-[#412C3A] text-white/60">OR</span>
+            </div>
+          </div>
+
+          {/* Social login buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <SocialButton provider="Google" />
+            <SocialButton provider="Facebook" />
+          </div>
+
+          {/* Sign up section */}
+          <div className="text-center mt-8">
+            <p className="text-white">
+              Don&apos;t Have An Account?{' '}
+              <Link to="/signup" className="font-bold text-[#0E9EEF] hover:underline">
+                Sign Up Here
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
