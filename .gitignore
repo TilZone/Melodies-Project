@@ -7,32 +7,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Node modules
-node_modules/
-melodies-music-app/node_modules/
-melodies-api/node_modules/
-
-# Build output
-build/
-dist/
-melodies-music-app/dist/
-melodies-api/dist/
-
-# Env files
-.env
-melodies-music-app/.env
-melodies-api/.env
-
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS
 .DS_Store
+
+# IDEs
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw? 
+*.sw?
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+
+# Environment variables
+.env
+.env*.local

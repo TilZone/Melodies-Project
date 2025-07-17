@@ -1,0 +1,147 @@
+.mobile-player-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.mobile-player-background {
+  position: absolute;
+  inset: 0;
+}
+
+.mobile-player-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px) brightness(0.6);
+  transform: scale(1.1);
+}
+
+.mobile-player-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+}
+
+.mobile-player-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 1rem 1.5rem;
+}
+
+.mobile-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mobile-player-art {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.mobile-player-art-image {
+  width: 80vw;
+  max-width: 300px;
+  height: 80vw;
+  max-height: 300px;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-player-info {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mobile-player-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-player-artist {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.mobile-player-progress {
+  margin-bottom: 2rem;
+}
+
+.mobile-player-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+}
+
+.mobile-player-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #ee10b0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.mobile-player-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ee10b0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.mobile-player-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.mobile-player-controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mobile-player-play-button {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.mobile-player-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.repeat-one-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ee10b0;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
