@@ -22,7 +22,10 @@ export const registerUser = async (req, res) => {
     user = await User.create({ name, email, password });
 
     const token = generateToken(user._id);
-    successResponse(res, 201, 'User registered successfully', { user: { id: user._id, name: user.name, email: user.email }, token });
+    successResponse(res, 201, 'User registered successfully', {
+      user: { id: user._id, name: user.name, email: user.email },
+      token,
+    });
   } catch (error) {
     errorResponse(res, 500, error.message);
   }
@@ -47,7 +50,10 @@ export const loginUser = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    successResponse(res, 200, 'User logged in successfully', { user: { id: user._id, name: user.name, email: user.email }, token });
+    successResponse(res, 200, 'User logged in successfully', {
+      user: { id: user._id, name: user.name, email: user.email },
+      token,
+    });
   } catch (error) {
     errorResponse(res, 500, error.message);
   }

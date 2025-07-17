@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Alert, Spin } from 'antd';
-import { fetchArtistDetails } from '../../services/artist.service';
+import { fetchArtistById } from '../../services/artist.service';
 import { CheckCircleFilled } from '@ant-design/icons';
 
 import SectionHeader from '../../components/common/SectionHeader';
@@ -49,14 +49,10 @@ const ArtistDetailPage = () => {
     const getArtistDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetchArtistDetails(artistId);
-        if (response.success) {
-          setArtist(response.data.artist);
-          setTopSongs(response.data.topSongs || []);
-          setAlbums(response.data.albums || []);
-        } else {
-          throw new Error(response.message || 'Failed to fetch artist details');
-        }
+        const data = await fetchArtistById(artistId);
+        setArtist(data);
+        setTopSongs(data.topSongs || []);
+        setAlbums(data.albums || []);
       } catch (err) {
         setError(err.message);
         console.error(err);

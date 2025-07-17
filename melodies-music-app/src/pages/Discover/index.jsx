@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Spin } from 'antd';
-import { fetchNewReleasedSongs, fetchPopularArtists } from '../../services/song.service'; // Giả sử các hàm này tồn tại
+import { fetchNewReleases } from '../../services/song.service';
+import { fetchPopularArtists } from '../../services/artist.service';
 
 import SectionHeader from '../../components/common/SectionHeader';
 import SongCard from '../../components/common/SongCard';
@@ -114,7 +115,7 @@ const DiscoverPage = () => {
       try {
         setLoading(true);
         const [songsResponse, artistsResponse] = await Promise.all([
-          fetchNewReleasedSongs(),
+          fetchNewReleases(),
           fetchPopularArtists(),
         ]);
         setNewSongs(songsResponse.data || []);
@@ -151,7 +152,7 @@ const DiscoverPage = () => {
           <SectionHeader title="Music" highlight="Genres" />
           <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-4">
             {musicGenres.map((genre) => (
-              <PlaylistCard key={genre.id} playlist={genre} />
+              <PlaylistCard key={genre.id} title={genre.title} image={genre.picture_medium} />
             ))}
           </div>
         </section>
@@ -161,7 +162,11 @@ const DiscoverPage = () => {
           <SectionHeader title="Mood" highlight="Playlists" />
           <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-4">
             {moodPlaylists.map((playlist) => (
-              <PlaylistCard key={playlist.id} playlist={playlist} />
+              <PlaylistCard
+                key={playlist.id}
+                title={playlist.title}
+                image={playlist.picture_medium}
+              />
             ))}
           </div>
         </section>
@@ -191,7 +196,13 @@ const DiscoverPage = () => {
           <SectionHeader title="Popular" highlight="Music Video" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {musicVideos.map((video) => (
-              <VideoCard key={video.id} video={video} />
+              <VideoCard
+                key={video.id}
+                title={video.title}
+                artist={video.artist.name}
+                views={video.views}
+                image={video.thumbnail}
+              />
             ))}
           </div>
         </section>
