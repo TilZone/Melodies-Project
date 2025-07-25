@@ -1,0 +1,33 @@
+{
+  "name": "melodies-api",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "seed": "node seed.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"./**/*.{js,json,css,md}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.x.x",
+    "eslint": "^9.x.x",
+    "eslint-config-prettier": "^9.x.x",
+    "eslint-plugin-prettier": "^5.x.x",
+    "globals": "^15.x.x",
+    "prettier": "^3.x.x"
+  }
+}

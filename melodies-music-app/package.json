@@ -1,0 +1,48 @@
+{
+  "name": "melodies-music-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "format": "prettier --write \"./**/*.{js,jsx,json,css,md}\""
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.x.x",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "antd": "^5.x.x",
+    "axios": "^1.x.x",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.x.x",
+    "prop-types": "^15.8.1",
+    "react": "^18.x.x",
+    "react-dom": "^18.x.x",
+    "react-hot-toast": "^2.5.2",
+    "react-responsive": "^10.0.1",
+    "react-router-dom": "^6.x.x",
+    "tailwind-merge": "^3.3.1",
+    "tailwind-scrollbar-hide": "^1.x.x",
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^4.x.x"
+  },
+  "devDependencies": {
+    "@types/react": "^18.x.x",
+    "@types/react-dom": "^18.x.x",
+    "@vitejs/plugin-react": "^4.x.x",
+    "autoprefixer": "^10.x.x",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.x.x",
+    "eslint-plugin-prettier": "^5.x.x",
+    "eslint-plugin-react": "^7.x.x",
+    "eslint-plugin-react-hooks": "^4.x.x",
+    "eslint-plugin-react-refresh": "^0.4.x",
+    "postcss": "^8.x.x",
+    "prettier": "^3.x.x",
+    "tailwindcss": "^3.x.x",
+    "vite": "^7.0.4"
+  }
+}

@@ -1,0 +1,25 @@
+import express from 'express';
+import {
+  getTrendingSongs,
+  getNewReleases,
+  getAllSongs,
+  createSong,
+  getSongById,
+  updateSong,
+  deleteSong,
+} from '../controllers/songController.js';
+
+const router = express.Router();
+
+// --- Discover Routes ---
+// These routes provide curated lists for the frontend's discover page.
+router.get('/discover/trending', getTrendingSongs);
+router.get('/discover/new-releases', getNewReleases);
+
+// --- Core CRUD Routes ---
+// Standard routes for creating, reading, updating, and deleting songs.
+router.route('/').get(getAllSongs).post(createSong);
+
+router.route('/:id').get(getSongById).put(updateSong).delete(deleteSong);
+
+export default router;
